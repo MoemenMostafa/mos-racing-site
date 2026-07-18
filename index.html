@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MOS Racing — Mobile Time-Attack Racing</title>
-<meta name="description" content="A pocket-sized racing sim: real physics, a laser-scanned GP circuit, and a global ghost leaderboard.">
+<meta name="description" content="A pocket-sized racing sim: real physics, a laser-scanned GP circuit, and a global ghost leaderboard. Early alpha.">
 </head>
 <body>
 <style>
@@ -28,6 +28,9 @@ body{
 h1,h2,h3,.disp{font-family:'MOSDisplay','MOSBody',sans-serif;font-style:italic;font-weight:700;letter-spacing:.01em;text-wrap:balance;text-transform:uppercase}
 .eyebrow{font-family:'MOSDisplay',sans-serif;font-style:italic;text-transform:uppercase;letter-spacing:.22em;font-size:.72rem;color:var(--cyan)}
 a{color:inherit}
+.badge{display:inline-flex;align-items:center;gap:9px;padding:8px 16px;border:1px solid var(--line);border-radius:100px;background:rgba(255,255,255,.04);font-family:'MOSDisplay',sans-serif;font-style:italic;text-transform:uppercase;letter-spacing:.2em;font-size:.68rem;color:var(--ink-soft)}
+.badge .dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 9px var(--cyan);animation:pulse 1.9s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.3}}
 
 /* ---- hero ---- */
 .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;overflow:hidden;padding:96px 24px 64px}
@@ -128,6 +131,7 @@ footer .disp{font-style:italic;color:var(--ink-soft);letter-spacing:.08em}
   <div class="hero-bg"></div>
   <div class="hero-scrim"></div>
   <div class="hero-inner">
+    <div class="badge"><span class="dot"></span>Early Alpha</div>
     <div class="logo" id="logo" aria-label="MOS Racing">
       <div class="ghost r" id="ghostR"></div>
       <div class="ghost c" id="ghostC"></div>
@@ -220,7 +224,7 @@ footer .disp{font-style:italic;color:var(--ink-soft);letter-spacing:.08em}
     <div class="cta-row rise">
       <a class="btn primary" href="#">Notify me on launch</a>
     </div>
-    <p class="notify rise">Android first · iOS &amp; PC to follow</p>
+    <p class="notify rise">Early alpha · Android first · iOS &amp; PC to follow</p>
   </div>
 </section>
 
