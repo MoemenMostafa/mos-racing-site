@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — MOS Racing</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #0b0d10; color: #d7dae0;
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 3rem 1.25rem 5rem;
+  }
+  main { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 1.9rem; letter-spacing: .01em; margin: 0 0 .25rem; color: #fff; }
+  h2 { font-size: 1.15rem; margin: 2.2rem 0 .6rem; color: #fff; }
+  .meta { color: #8b909a; font-size: .9rem; margin-bottom: 2rem; }
+  a { color: #f26a3a; }
+  ul { padding-left: 1.2rem; }
+  li { margin: .3rem 0; }
+  code { background: #16191e; padding: .1em .4em; border-radius: 4px; font-size: .9em; }
+  .card { background: #14171c; border: 1px solid #23272e; border-radius: 10px; padding: 1rem 1.25rem; margin: 1rem 0; }
+  footer { margin-top: 3rem; color: #6b7079; font-size: .85rem; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Privacy Policy — MOS Racing</h1>
+  <p class="meta">Last updated: 19 July 2026</p>
+
+  <p>MOS Racing ("the game", "we") is a time-attack racing game. This policy explains
+  exactly what data the game handles. In short: the game has <strong>no accounts, no ads,
+  and no analytics or tracking SDKs</strong>, and it only sends data off your device if you
+  choose to submit a lap to the global leaderboard.</p>
+
+  <h2>Data the game stores on your device</h2>
+  <p>The following is saved locally on your device (Android app storage) and is not transmitted
+  unless noted below:</p>
+  <ul>
+    <li>Your settings (controls, assists, audio).</li>
+    <li>Your personal best lap times.</li>
+    <li>A display name you optionally enter.</li>
+    <li>A random identifier generated once by the app on first launch (see below).</li>
+  </ul>
+
+  <h2>Data sent when you submit a leaderboard lap</h2>
+  <p>Submitting a lap to the global leaderboard is <strong>optional</strong> — it only happens
+  if you have entered a display name and set a personal best. When you do, the game sends the
+  following to our backend (hosted on Supabase) over an encrypted (HTTPS) connection:</p>
+  <div class="card">
+    <ul>
+      <li><strong>Display name</strong> — the name you typed (up to 20 characters). Choose a
+      nickname if you prefer; it is shown publicly on the leaderboard.</li>
+      <li><strong>Random app identifier</strong> — a randomly generated ID (a UUID) created by
+      the app on your device. It is <em>not</em> your device ID, advertising ID, or any hardware
+      identifier. It is used only to associate and de-duplicate your leaderboard entries.</li>
+      <li><strong>Lap data</strong> — your lap time, the car and track, and a "ghost" recording
+      (a series of positions of the car during the lap) so other players can race your ghost.</li>
+    </ul>
+  </div>
+  <p>We do <strong>not</strong> collect your real name, email address, phone number, precise or
+  approximate location, contacts, photos, or any hardware/advertising identifiers.</p>
+
+  <h2>Why we use this data</h2>
+  <p>Solely to operate the global leaderboard and ghost-replay feature (app functionality). We do
+  not use it for advertising, profiling, or tracking, and we do not sell or share it with third
+  parties. Our backend provider (Supabase) processes and stores the data on our behalf as a
+  service provider.</p>
+
+  <h2>Data retention and deletion</h2>
+  <p>Leaderboard entries are kept until you ask us to remove them. To have your submitted entries
+  and display name deleted, email <a href="mailto:support@mos-simracing.de">support@mos-simracing.de</a>
+  with the display name you used, and we will delete the associated entries. You can also clear all
+  locally stored data at any time from your device's Android app settings (Storage → Clear data).</p>
+
+  <h2>Children</h2>
+  <p>MOS Racing is not directed at children under 13. Because display names are shown publicly on
+  the leaderboard, we ask that children do not submit personal information as a display name.</p>
+
+  <h2>Security</h2>
+  <p>All data sent to our backend is transmitted over encrypted HTTPS connections.</p>
+
+  <h2>Changes to this policy</h2>
+  <p>If this policy changes, we will update the date above and post the revised policy at this
+  address.</p>
+
+  <h2>Contact</h2>
+  <p>Questions or requests: <a href="mailto:support@mos-simracing.de">support@mos-simracing.de</a></p>
+
+  <footer>© 2026 MOS Racing · <a href="/">mos-simracing.de</a></footer>
+</main>
+</body>
+</html>
