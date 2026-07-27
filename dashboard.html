@@ -22,7 +22,7 @@
     border:1px solid var(--line);border-radius:16px;text-align:center}
   #login h1{font-size:1.4rem;margin:0 0 6px}
   #login p{color:var(--dim);font-size:.9rem;margin:0 0 18px}
-  input[type=email]{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);
+  input[type=email],input[type=password]{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);
     background:var(--surface2);color:var(--ink);font-size:1rem;margin-bottom:12px}
   button{cursor:pointer;border:none;border-radius:10px;font-weight:700;padding:12px 16px;
     background:var(--red);color:#fff;font-size:.95rem}
@@ -82,8 +82,17 @@
   <h1>🏁 MOS Racing — Live</h1>
   <p>Admin monitoring. Sign in with your allowlisted email.</p>
   <input type="email" id="email" placeholder="you@example.com" autocomplete="email" />
-  <button id="sendLink">Send magic link</button>
+  <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
+  <button id="signInPw">Sign in</button>
+  <button class="ghost" id="sendLink" style="width:100%;margin-top:8px">Email me a magic link instead</button>
+  <div style="margin-top:10px"><a href="#" id="resetPw" style="font-size:.82rem;color:var(--dim)">Set / reset password</a></div>
   <div class="status" id="loginStatus"></div>
+
+  <!-- set-password (first-time set or recovery) -->
+  <div id="setpw" class="hidden" style="margin-top:14px">
+    <input type="password" id="newPassword" placeholder="New password (min 6 chars)" autocomplete="new-password" />
+    <button id="savePw">Save password &amp; sign in</button>
+  </div>
 </div>
 
 <!-- DASHBOARD -->
@@ -159,7 +168,37 @@ $("sendLink").addEventListener("click", async () => {
   });
   setStatus(error ? ("Error: " + error.message) : "Check your inbox for the login link.", error ? "err" : "ok");
 });
-$("email").addEventListener("keydown", e => { if (e.key === "Enter") $("sendLink").click(); });
+$("email").addEventListener("keydown", e => { if (e.key === "Enter") $("password").focus(); });
+
+// --- email + password sign-in ---
+$("signInPw").addEventListener("click", async () => {
+  const email = $("email").value.trim(), password = $("password").value;
+  if (!email || !password) { setStatus("Enter your email and password.", "err"); return; }
+  setStatus("Signing in…");
+  const { error } = await client.auth.signInWithPassword({ email, password });
+  if (error) setStatus("Error: " + error.message, "err"); // success → onAuthStateChange → enter()
+});
+$("password").addEventListener("keydown", e => { if (e.key === "Enter") $("signInPw").click(); });
+
+// --- set / reset password: email a recovery link, then set it below ---
+$("resetPw").addEventListener("click", async (e) => {
+  e.preventDefault();
+  const email = $("email").value.trim();
+  if (!email) { setStatus("Enter your email first, then tap Set / reset password.", "err"); return; }
+  setStatus("Sending…");
+  const { error } = await client.auth.resetPasswordForEmail(email, { redirectTo: "https://mos-simracing.de/dashboard.html" });
+  setStatus(error ? ("Error: " + error.message) : "Check your inbox — open the link to set a password.", error ? "err" : "ok");
+});
+$("savePw").addEventListener("click", async () => {
+  const pw = $("newPassword").value;
+  if (!pw || pw.length < 6) { setStatus("Password must be at least 6 characters.", "err"); return; }
+  setStatus("Saving…");
+  const { error } = await client.auth.updateUser({ password: pw });
+  if (error) { setStatus("Error: " + error.message, "err"); return; }
+  const { data } = await client.auth.getSession();
+  if (data.session) enter(data.session); else setStatus("Password set — now sign in.", "ok");
+});
+
 $("signout").addEventListener("click", async () => { await client.auth.signOut(); location.reload(); });
 
 // surface auth errors that come back in the redirect hash (expired or
@@ -174,8 +213,20 @@ $("signout").addEventListener("click", async () => { await client.auth.signOut()
   }
 })();
 
-client.auth.onAuthStateChange((_evt, session) => { if (session) enter(session); });
-client.auth.getSession().then(({ data }) => { if (data.session) enter(data.session); });
+// arriving via a password-recovery link: show the set-password box instead of
+// entering the dashboard (guard the initial-session auto-enter too, so the
+// recovery session doesn't slip straight in before the password is set)
+const isRecovery = (window.location.hash || "").indexOf("type=recovery") !== -1;
+
+client.auth.onAuthStateChange((evt, session) => {
+  if (evt === "PASSWORD_RECOVERY") {
+    $("setpw").classList.remove("hidden");
+    setStatus("Enter a new password to finish signing in.", "ok");
+    return;
+  }
+  if (session && !isRecovery) enter(session);
+});
+client.auth.getSession().then(({ data }) => { if (data.session && !isRecovery) enter(data.session); });
 
 let entered = false, refreshTimer = null, chart = null, channel = null;
 
