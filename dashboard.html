@@ -58,6 +58,12 @@
   .row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-top:1px solid var(--line);font-size:.9rem}
   .row:first-of-type{border-top:none}
   .row .k{color:var(--ink)} .row .v{color:var(--dim);font-variant-numeric:tabular-nums}
+  .fb{padding:8px 0;border-top:1px solid var(--line)} .fb:first-child{border-top:none}
+  .fb .row{border-top:none;padding-top:0}
+  .fbreply{margin-top:6px}
+  .fbbox{margin-top:8px;display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}
+  .fbbox textarea{flex:1;min-width:200px;background:var(--surface2);border:1px solid var(--line);border-radius:8px;color:var(--ink);padding:8px;font-family:inherit;font-size:.85rem;resize:vertical}
+  .fbstatus{font-size:.78rem;align-self:center}
   .bar{height:6px;border-radius:4px;background:var(--cyan);opacity:.8;margin-top:3px}
 
   /* live feed — fills the card, which fills the row height */
@@ -218,6 +224,21 @@ $("savePw").addEventListener("click", async () => {
 
 $("signout").addEventListener("click", async () => { await client.auth.signOut(); location.reload(); });
 
+// feedback replies → in-game inbox message (event-delegated; #feedback re-renders on refresh)
+$("feedback").addEventListener("click", async (e) => {
+  if (e.target.classList.contains("fbreply")) { e.target.nextElementSibling.classList.toggle("hidden"); return; }
+  if (e.target.classList.contains("fbsend")) {
+    const fb = e.target.closest(".fb"), box = e.target.closest(".fbbox");
+    const ta = box.querySelector("textarea"), status = box.querySelector(".fbstatus");
+    const body = ta.value.trim();
+    if (!body) { status.textContent = "Type a reply first."; return; }
+    status.textContent = "Sending…";
+    const { error } = await client.from("messages").insert({ client_id: fb.dataset.client, body, feedback_id: fb.dataset.fb });
+    status.textContent = error ? ("Error: " + error.message) : "Sent ✓ — will show in their inbox";
+    if (!error) ta.value = "";
+  }
+});
+
 // surface auth errors that come back in the redirect hash (expired or
 // already-used magic link, etc.) instead of leaving a cryptic #error=… URL
 (function () {
@@ -308,11 +329,20 @@ function renderCars(arr){
 }
 
 async function loadFeedback(){
-  const { data } = await client.from("feedback").select("created_at,message,rating,player,app_version")
-    .order("created_at",{ascending:false}).limit(10);
+  const { data } = await client.from("feedback").select("id,client_id,created_at,message,rating,player,app_version")
+    .order("created_at",{ascending:false}).limit(12);
   const el=$("feedback");
   if(!data || !data.length){el.innerHTML='<div class="muted">No feedback yet.</div>';return;}
-  el.innerHTML=data.map(f=>`<div class="row"><span class="k">${f.rating?("★".repeat(f.rating)+" "):""}${esc(f.message)}</span><span class="v">${esc(f.player||"—")} · ${fmtTime(f.created_at)}</span></div>`).join("");
+  el.innerHTML=data.map(f=>{
+    const stars=f.rating?("★".repeat(f.rating)+" "):"";
+    const reply=f.client_id?`<button class="copybtn fbreply">Reply</button>`+
+      `<div class="fbbox hidden"><textarea rows="2" placeholder="Reply — appears in the player's in-game inbox"></textarea>`+
+      `<button class="copybtn fbsend">Send</button><span class="fbstatus muted"></span></div>`
+      :`<span class="muted" style="font-size:.75rem">no device id — can't reply</span>`;
+    return `<div class="fb" data-fb="${esc(f.id)}" data-client="${esc(f.client_id||"")}">`+
+      `<div class="row"><span class="k">${stars}${esc(f.message)}</span>`+
+      `<span class="v">${esc(f.player||"—")} · ${fmtTime(f.created_at)}</span></div>${reply}</div>`;
+  }).join("");
 }
 
 async function loadRecentEvents(){
