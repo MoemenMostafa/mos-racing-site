@@ -162,6 +162,18 @@ $("sendLink").addEventListener("click", async () => {
 $("email").addEventListener("keydown", e => { if (e.key === "Enter") $("sendLink").click(); });
 $("signout").addEventListener("click", async () => { await client.auth.signOut(); location.reload(); });
 
+// surface auth errors that come back in the redirect hash (expired or
+// already-used magic link, etc.) instead of leaving a cryptic #error=… URL
+(function () {
+  const h = window.location.hash || "";
+  if (h.indexOf("error") !== -1) {
+    const p = new URLSearchParams(h.replace(/^#/, ""));
+    const desc = (p.get("error_description") || p.get("error") || "Login link problem").replace(/\+/g, " ");
+    setStatus(decodeURIComponent(desc) + " — request a new link below.", "err");
+    try { history.replaceState(null, "", window.location.pathname); } catch (e) {}
+  }
+})();
+
 client.auth.onAuthStateChange((_evt, session) => { if (session) enter(session); });
 client.auth.getSession().then(({ data }) => { if (data.session) enter(data.session); });
 
