@@ -66,9 +66,9 @@
   .fbstatus{font-size:.78rem;align-self:center}
   .bar{height:6px;border-radius:4px;background:var(--cyan);opacity:.8;margin-top:3px}
 
-  /* live feed — fills the card, which fills the row height */
+  /* live feed — fills available space but never taller than the cap, then scrolls */
   .feed-card{height:100%;display:flex;flex-direction:column;margin-bottom:0}
-  .feed-card #feed{flex:1 1 auto;min-height:240px;max-height:none}
+  .feed-card #feed{flex:1 1 auto;min-height:240px;max-height:60vh}
   #feed{overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surface2) transparent}
   #feed::-webkit-scrollbar{width:8px}
   #feed::-webkit-scrollbar-track{background:transparent}
@@ -266,7 +266,7 @@ client.auth.onAuthStateChange((evt, session) => {
 });
 client.auth.getSession().then(({ data }) => { if (data.session && !isRecovery) enter(data.session); });
 
-let entered = false, refreshTimer = null, chart = null, channel = null;
+let entered = false, refreshTimer = null, chart = null, channel = null, feedPoll = null;
 
 async function enter(session) {
   if (entered) return;            // both listeners can fire — enter once
@@ -296,7 +296,8 @@ async function refreshAll() {
   if (ov) renderOverview(ov);
   if (daily) renderChart(daily);
   loadFeedback();
-  if (!channel) loadRecentEvents(); // seed the feed once
+  // the feed is owned by subscribeLive() (realtime inserts, or a poll fallback);
+  // the 30s tile/chart refresh must not clobber it.
 }
 
 function renderOverview(o) {
@@ -352,16 +353,25 @@ async function loadRecentEvents(){
 }
 
 function subscribeLive(){
+  loadRecentEvents(); // seed immediately so the feed is never empty
   channel = client.channel("events-live")
     .on("postgres_changes",{event:"INSERT",schema:"public",table:"events"}, payload => {
       const feed=$("feed");
       const div=document.createElement("div");
       div.innerHTML=evHtml(payload.new); const node=div.firstElementChild;
+      if(!node) return;
       node.classList.add("new");
       feed.insertBefore(node, feed.firstChild);
       while(feed.children.length>80) feed.removeChild(feed.lastChild);
     })
-    .subscribe();
+    .subscribe((status)=>{
+      // Realtime is the primary live path. If it can't connect, fall back to a
+      // light poll so the feed still updates live — no manual refresh needed.
+      if(status==="SUBSCRIBED"){ if(feedPoll){clearInterval(feedPoll);feedPoll=null;} }
+      else if(status==="CHANNEL_ERROR"||status==="TIMED_OUT"||status==="CLOSED"){
+        if(!feedPoll) feedPoll=setInterval(loadRecentEvents, 15000);
+      }
+    });
 }
 function evHtml(e){
   return `<div class="ev"><span class="t">${fmtTime(e.created_at)}</span>`+
