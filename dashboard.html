@@ -152,7 +152,15 @@
 // all admin data is gated server-side by RLS + the is_admin() allowlist).
 const SUPABASE_URL = "https://uubjfmmhedxixavhgaty.supabase.co";
 const SUPABASE_ANON = "sb_publishable_PrUhgWeqc0ffSLwPWhkXPQ_xb7rKRtV";
-const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: {
+    persistSession: true,        // keep the session across reloads / browser restarts
+    autoRefreshToken: true,      // silently refresh the access token so it doesn't expire out from under you
+    detectSessionInUrl: true,    // process the magic-link / recovery hash on arrival
+    storage: window.localStorage,
+    storageKey: "mosracing-admin-auth"
+  }
+});
 
 const $ = id => document.getElementById(id);
 const fmtTime = ts => new Date(ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
