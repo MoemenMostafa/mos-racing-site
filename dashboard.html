@@ -152,7 +152,10 @@ $("sendLink").addEventListener("click", async () => {
   if (!email) { setStatus("Enter your email.", "err"); return; }
   setStatus("Sending…");
   const { error } = await client.auth.signInWithOtp({
-    email, options: { emailRedirectTo: window.location.origin + window.location.pathname }
+    // hardcoded to production so the login link never inherits a localhost/file
+    // origin when the page is opened locally; this must match a Supabase
+    // Redirect URL (add https://mos-simracing.de/** in Auth → URL Configuration)
+    email, options: { emailRedirectTo: "https://mos-simracing.de/dashboard.html" }
   });
   setStatus(error ? ("Error: " + error.message) : "Check your inbox for the login link.", error ? "err" : "ok");
 });
