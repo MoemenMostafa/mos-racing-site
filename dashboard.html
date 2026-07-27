@@ -27,6 +27,8 @@
   button{cursor:pointer;border:none;border-radius:10px;font-weight:700;padding:12px 16px;
     background:var(--red);color:#fff;font-size:.95rem}
   button.ghost{background:transparent;border:1px solid var(--line);color:var(--dim);font-weight:600;padding:7px 12px}
+  .divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--dim);font-size:.78rem;text-transform:uppercase;letter-spacing:.1em}
+  .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--line)}
   .status{font-size:.85rem;color:var(--dim);margin-top:12px;min-height:1.2em}
   .status.err{color:var(--red)} .status.ok{color:var(--green)}
 
@@ -83,9 +85,10 @@
   <p>Admin monitoring. Sign in with your allowlisted email.</p>
   <input type="email" id="email" placeholder="you@example.com" autocomplete="email" />
   <input type="password" id="password" placeholder="Password" autocomplete="current-password" />
+  <div style="text-align:right;margin:-6px 0 12px"><a href="#" id="resetPw" style="font-size:.82rem;color:var(--dim)">Set / reset password</a></div>
   <button id="signInPw">Sign in</button>
-  <button class="ghost" id="sendLink" style="width:100%;margin-top:8px">Email me a magic link instead</button>
-  <div style="margin-top:10px"><a href="#" id="resetPw" style="font-size:.82rem;color:var(--dim)">Set / reset password</a></div>
+  <div class="divider">or</div>
+  <button class="ghost" id="sendLink" style="width:100%">Email me a magic link instead</button>
   <div class="status" id="loginStatus"></div>
 
   <!-- set-password (first-time set or recovery) -->
